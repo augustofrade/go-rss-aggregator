@@ -2,12 +2,10 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"path"
-	"runtime"
 	"strings"
 
 	"github.com/augustofrade/go-rss-aggregator/cli"
+	"github.com/augustofrade/go-rss-aggregator/configdir"
 	rssxmldecoder "github.com/augustofrade/go-rss-aggregator/rss-xml-decoder"
 	"github.com/manifoldco/promptui"
 	"golang.org/x/term"
@@ -19,7 +17,8 @@ type CliOption struct {
 }
 
 func main() {
-	handleAppDir()
+	configs := configdir.Init()
+	fmt.Println(configs.FeedFilePath)
 	xmlBytes := cli.Init()
 	articles := rssxmldecoder.Decode(xmlBytes)
 
@@ -50,7 +49,7 @@ func main() {
 		Size: menuHeight,
 	}
 
-	cli.Clear()
+	// cli.Clear()
 	fmt.Printf("Listing %d entries\n\n", len(options))
 	index, _, err := prompt.Run()
 	if err != nil {
@@ -66,28 +65,4 @@ func main() {
 	fmt.Printf("[%s]     %s\n\n", selectedArticle.PubDate, selectedArticle.Title)
 	fmt.Println(selectedArticle.Link)
 	fmt.Printf("\n\n%s\n\n", articleDescription)
-}
-
-func handleAppDir() string {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		panic(err)
-	}
-	var configDir string
-	switch runtime.GOOS {
-	case "windows":
-		configDir = "Documents"
-	default:
-		configDir = ".config"
-	}
-	appDir := path.Join(homeDir, configDir, "kevin")
-
-	if _, err = os.Stat(appDir); os.IsNotExist(err) {
-		err = os.Mkdir(appDir, 0755)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	return appDir
 }
