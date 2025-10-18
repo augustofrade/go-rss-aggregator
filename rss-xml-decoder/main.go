@@ -10,10 +10,10 @@ type RSS struct {
 }
 
 type Channel struct {
-	XMLName xml.Name   `xml:"channel"`
-	Title   string     `xml:"title"`
-	Link    string     `xml:"link"`
-	Items   []FeedItem `xml:"item"`
+	XMLName  xml.Name   `xml:"channel"`
+	Title    string     `xml:"title"`
+	Link     string     `xml:"link"`
+	Articles []FeedItem `xml:"item"`
 }
 
 type FeedItem struct {
@@ -24,12 +24,12 @@ type FeedItem struct {
 	Description string   `xml:"description"`
 }
 
-func Decode(data *[]byte) *[]FeedItem {
+func Decode(data *[]byte) *Channel {
 	var root RSS
 	err := xml.Unmarshal(*data, &root)
 	if err != nil {
 		panic(err)
 	}
 
-	return &root.Channel.Items
+	return &root.Channel
 }

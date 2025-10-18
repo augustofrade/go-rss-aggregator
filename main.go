@@ -20,11 +20,11 @@ func main() {
 	configs := configdir.Init()
 	fmt.Println(configs.FeedFilePath)
 	xmlBytes := cli.Init()
-	articles := rssxmldecoder.Decode(xmlBytes)
+	channel := rssxmldecoder.Decode(xmlBytes)
 
 	options := make([]CliOption, 0)
 
-	for i, item := range *articles {
+	for i, item := range channel.Articles {
 		options = append(options, CliOption{Label: item.Title, Value: fmt.Sprint(i)})
 	}
 
@@ -42,8 +42,8 @@ func main() {
 		Items: options,
 		Templates: &promptui.SelectTemplates{
 			Label:    "{{ . }}",
-			Active:   "\U00002022 {{ .Label | cyan }}",
-			Inactive: "  {{ .Label }}",
+			Active:   "\U00002022 {{ .Label | blue }}",
+			Inactive: "  {{ .Label | white }}",
 			Selected: "{{ .Label | red | cyan }}",
 		},
 		Size: menuHeight,
@@ -58,11 +58,12 @@ func main() {
 
 	cli.Clear()
 
-	selectedArticle := (*articles)[index]
+	selectedArticle := (channel.Articles)[index]
 	articleDescription := strings.TrimSpace(selectedArticle.Description)
 	articleDescription = strings.ReplaceAll(articleDescription, "[&#8230;]", "[...]")
 	articleDescription = strings.ReplaceAll(articleDescription, "&#160;", " ")
-	fmt.Printf("[%s]     %s\n\n", selectedArticle.PubDate, selectedArticle.Title)
+
+	fmt.Printf("%s\n\n[%s]     %s\n\n", channel.Title, selectedArticle.PubDate, selectedArticle.Title)
 	fmt.Println(selectedArticle.Link)
 	fmt.Printf("\n\n%s\n\n", articleDescription)
 }
