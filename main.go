@@ -1,15 +1,30 @@
 package main
 
 import (
+	"fmt"
+
+	"github.com/augustofrade/go-rss-aggregator/application"
 	"github.com/augustofrade/go-rss-aggregator/cli"
 	"github.com/augustofrade/go-rss-aggregator/configdir"
-	rssxmldecoder "github.com/augustofrade/go-rss-aggregator/rss-xml-decoder"
 )
 
 func main() {
 	configdir.Init()
-	xmlBytes := cli.Init()
-	channel := rssxmldecoder.Decode(xmlBytes)
+	applicationMode := cli.Init()
+	origin := &applicationMode.Origin
 
-	cli.ShowArticlesMenu(channel)
+	var err error
+
+	switch applicationMode.Mode {
+	case "file":
+		err = application.HandleLocalFile(origin)
+	case "url":
+		err = application.HandleExternalUrl(origin)
+	default:
+		fmt.Println("Default mode")
+	}
+
+	if err != nil {
+		fmt.Println(err)
+	}
 }

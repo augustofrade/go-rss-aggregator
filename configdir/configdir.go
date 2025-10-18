@@ -21,6 +21,10 @@ func Init() ConfigDir {
 	return ConfigDir{DirPath: appDir, FeedFilePath: feedFile}
 }
 
+func FeedFilePath() string {
+	return feedFile
+}
+
 func createFeedFileIfNotExists() {
 	feedFile = path.Join(appDir, feedFile)
 	if _, err := os.Stat(feedFile); os.IsNotExist(err) {

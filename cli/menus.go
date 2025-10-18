@@ -42,14 +42,14 @@ func ShowArticlesMenu(channel *rssxmldecoder.Channel) {
 		Size: menuHeight,
 	}
 
-	// cli.Clear()
+	ClearTerminal()
 	fmt.Printf("Listing %d entries\n\n", len(options))
 	index, _, err := prompt.Run()
 	if err != nil {
 		panic(err)
 	}
 
-	Clear()
+	ClearTerminal()
 
 	selectedArticle := (channel.Articles)[index]
 	articleDescription := strings.TrimSpace(selectedArticle.Description)
