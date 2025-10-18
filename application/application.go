@@ -18,7 +18,11 @@ func HandleLocalFile(path *string) error {
 		return err
 	}
 
-	rssChannel := rssxmldecoder.Decode(bodyBytes)
+	rssChannel, err := rssxmldecoder.Decode(bodyBytes)
+	if err != nil {
+		return err
+	}
+
 	cli.ShowArticlesMenu(rssChannel)
 
 	return nil
@@ -31,7 +35,11 @@ func HandleExternalUrl(url *string) error {
 		return err
 	}
 
-	rssChannel := rssxmldecoder.Decode(bodyBytes)
+	rssChannel, err := rssxmldecoder.Decode(bodyBytes)
+	if err != nil {
+		return err
+	}
+
 	cli.ShowArticlesMenu(rssChannel)
 
 	return nil

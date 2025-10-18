@@ -24,12 +24,12 @@ type FeedItem struct {
 	Description string   `xml:"description"`
 }
 
-func Decode(data *[]byte) *Channel {
+func Decode(data *[]byte) (*Channel, error) {
 	var root RSS
 	err := xml.Unmarshal(*data, &root)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return &root.Channel
+	return &root.Channel, nil
 }

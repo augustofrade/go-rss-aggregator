@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/augustofrade/go-rss-aggregator/configdir"
 	rssxmldecoder "github.com/augustofrade/go-rss-aggregator/rss-xml-decoder"
@@ -26,15 +27,21 @@ func (agg *Aggregator) Handle() error {
 }
 
 func (agg *Aggregator) fetchFeeds(urls []string) {
-	parsedData := make([]*rssxmldecoder.Channel, 0)
+
+	var wg sync.WaitGroup
 
 	for _, url := range urls {
-		currentFeed, err := agg.handleSingleFeed(&url)
-		if err != nil {
-			log.Printf("Failed fetching \"%s\"\n%s\n", url, err)
-		}
-		parsedData = append(parsedData, currentFeed)
+		wg.Go(func() {
+			currentFeed, err := agg.handleSingleFeed(&url)
+			if err != nil {
+				log.Printf("Failed fetching \"%s\"\n%s\n", url, err)
+			}
+			agg.feeds = append(agg.feeds, currentFeed)
+		})
 	}
+
+	wg.Wait()
+	fmt.Printf("Found %d articles\n\n", len(agg.feeds))
 }
 
 func (agg *Aggregator) handleSingleFeed(url *string) (*rssxmldecoder.Channel, error) {
@@ -44,7 +51,7 @@ func (agg *Aggregator) handleSingleFeed(url *string) (*rssxmldecoder.Channel, er
 		return nil, err
 	}
 
-	return rssxmldecoder.Decode(currentFeed), nil
+	return rssxmldecoder.Decode(currentFeed)
 }
 
 func (agg *Aggregator) getFeedsURLs() ([]string, error) {
