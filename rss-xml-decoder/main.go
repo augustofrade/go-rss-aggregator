@@ -2,8 +2,6 @@ package rssxmldecoder
 
 import (
 	"encoding/xml"
-	"fmt"
-	"strings"
 )
 
 type RSS struct {
@@ -25,20 +23,14 @@ type FeedItem struct {
 	Description string   `xml:"description"`
 }
 
-func Decode(data *[]byte) {
+func Decode(data *[]byte) *[]FeedItem {
 	var root RSS
 	err := xml.Unmarshal(*data, &root)
 	if err != nil {
 		panic(err)
 	}
 
-	for i, item := range root.Channel.Items {
-
-		description := strings.TrimSpace(item.Description)
-		description = strings.ReplaceAll(description, "18&#160;", "")
-		description = truncateString(&description, 255)
-		fmt.Printf("%s (%s)\n%s\n%d\n\n", item.Title, item.Link, description, i)
-	}
+	return &root.Channel.Items
 }
 
 func truncateString(s *string, length int) string {

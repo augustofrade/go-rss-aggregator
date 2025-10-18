@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -65,4 +66,10 @@ func handleUrlParse(body *[]byte) error {
 	}
 
 	return nil
+}
+
+func Clear() {
+	cmd := exec.Command("clear")
+	cmd.Stdout = os.Stdout
+	cmd.Run()
 }
