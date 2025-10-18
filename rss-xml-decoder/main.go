@@ -20,6 +20,7 @@ type FeedItem struct {
 	XMLName     xml.Name `xml:"item"`
 	Title       string   `xml:"title"`
 	Link        string   `xml:"link"`
+	PubDate     string   `xml:"pubDate"`
 	Description string   `xml:"description"`
 }
 
@@ -31,17 +32,4 @@ func Decode(data *[]byte) *[]FeedItem {
 	}
 
 	return &root.Channel.Items
-}
-
-func truncateString(s *string, length int) string {
-	truncated := ""
-	count := 0
-	for _, char := range *s {
-		truncated += string(char)
-		count++
-		if count >= length {
-			break
-		}
-	}
-	return truncated + "..."
 }

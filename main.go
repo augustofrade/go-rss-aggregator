@@ -63,7 +63,9 @@ func main() {
 	articleDescription := strings.TrimSpace(selectedArticle.Description)
 	articleDescription = strings.ReplaceAll(articleDescription, "[&#8230;]", "[...]")
 	articleDescription = strings.ReplaceAll(articleDescription, "&#160;", " ")
-	fmt.Printf("%s [%s]\n\n%s\n\n", selectedArticle.Title, selectedArticle.Link, articleDescription)
+	fmt.Printf("[%s]     %s\n\n", selectedArticle.PubDate, selectedArticle.Title)
+	fmt.Println(selectedArticle.Link)
+	fmt.Printf("\n\n%s\n\n", articleDescription)
 }
 
 func handleAppDir() string {
