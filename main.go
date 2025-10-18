@@ -21,7 +21,8 @@ func main() {
 	case "url":
 		err = application.HandleExternalUrl(origin)
 	default:
-		fmt.Println("Default mode")
+		aggregator := application.Aggregator{}
+		aggregator.Handle()
 	}
 
 	if err != nil {

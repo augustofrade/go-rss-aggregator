@@ -12,6 +12,7 @@ import (
 )
 
 func HandleLocalFile(path *string) error {
+	fmt.Printf("Reading feed from file: %s...\n\n", *path)
 	bodyBytes, err := fetchLocalFile(path)
 	if err != nil {
 		return err
@@ -23,8 +24,9 @@ func HandleLocalFile(path *string) error {
 	return nil
 }
 
-func HandleExternalUrl(path *string) error {
-	bodyBytes, err := fetchExternalFile(path)
+func HandleExternalUrl(url *string) error {
+	fmt.Printf("Reading feed from URL: %s...\n\n", *url)
+	bodyBytes, err := fetchExternalFile(url)
 	if err != nil {
 		return err
 	}
@@ -36,7 +38,6 @@ func HandleExternalUrl(path *string) error {
 }
 
 func fetchLocalFile(file *string) (*[]byte, error) {
-	fmt.Printf("Reading feed from file: %s...\n\n", *file)
 
 	body, err := os.ReadFile(*file)
 
@@ -44,8 +45,6 @@ func fetchLocalFile(file *string) (*[]byte, error) {
 }
 
 func fetchExternalFile(url *string) (*[]byte, error) {
-	fmt.Printf("Reading feed from URL: %s...\n\n", *url)
-
 	resp, err := http.Get(*url)
 	if err != nil {
 		return nil, err
