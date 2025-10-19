@@ -47,7 +47,7 @@ func (agg *Aggregator) fetchFeeds(urls []string) {
 }
 
 func (agg *Aggregator) handleSingleFeed(url *string) (*rssxmldecoder.Channel, error) {
-	fmt.Println("Handling ", *url)
+	fmt.Println("Fetching ", *url)
 	currentFeed, err := fetchExternalFile(url)
 	if err != nil {
 		return nil, err

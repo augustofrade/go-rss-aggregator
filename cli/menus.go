@@ -31,8 +31,7 @@ func ShowArticlesMenu(channel *rssxmldecoder.Channel) {
 		fmt.Printf("\nListing %d entries\n\n", len(options))
 		fmt.Println()
 
-		promptLabel := "Choose an article"
-		selectedIndex := displayGenericSelect(promptLabel, options)
+		selectedIndex := displayGenericSelect("Choose an article:", options)
 		if selectedIndex == -1 {
 			return
 		}
@@ -60,12 +59,10 @@ func ShowFeedsMenu(channels []*rssxmldecoder.Channel) {
 		optionLabel := fmt.Sprintf("[%d]  %s", len(channel.Articles), truncatedTitle)
 		options = append(options, CliOption{Label: optionLabel, Value: fmt.Sprint(i)})
 	}
-
-	promptLabel := "Choose an option"
 	for {
 		ClearTerminal()
 		fmt.Printf("%d Feeds\n\n", len(options))
-		selectedIndex := displayGenericSelect(promptLabel, options)
+		selectedIndex := displayGenericSelect("Choose a feed:", options)
 		if selectedIndex == -1 {
 			return
 		}
