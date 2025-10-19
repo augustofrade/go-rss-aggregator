@@ -30,10 +30,14 @@ func Init() ContentSource {
 	return ContentSource{Mode: "default"}
 }
 
-func ClearTerminal() {
-	cmd := exec.Command("clear")
+func Exec(command string, args ...string) {
+	cmd := exec.Command(command, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Run()
+}
+
+func ClearTerminal() {
+	Exec("clear")
 }
 
 func GetTerminalHeight(lines int) int {

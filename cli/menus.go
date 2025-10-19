@@ -48,10 +48,11 @@ func ShowArticlesMenu(channel *rssxmldecoder.Channel) {
 	fmt.Printf("%s\n\n[%s]     %s\n\n", channel.Title, selectedArticle.PubDate, selectedArticle.Title)
 	fmt.Println(selectedArticle.Link)
 	fmt.Printf("\n\n%s\n\n", articleDescription)
+
+	showArticleMenuOptions(&selectedArticle)
 }
 
 func ShowFeedsMenu(channels []*rssxmldecoder.Channel) {
-	ClearTerminal()
 
 	options := make([]CliOption, 0)
 	for i, channel := range channels {
@@ -59,8 +60,44 @@ func ShowFeedsMenu(channels []*rssxmldecoder.Channel) {
 		options = append(options, CliOption{Label: optionLabel, Value: fmt.Sprint(i)})
 	}
 
+	for {
+		ClearTerminal()
+
+		prompt := promptui.Select{
+			Label: "Choose a feed",
+			Items: options,
+			Templates: &promptui.SelectTemplates{
+				Label:    "{{ . }}",
+				Active:   "\U00002022 {{ .Label | blue }}",
+				Inactive: "  {{ .Label | white }}",
+				Selected: "{{ .Label | cyan }}",
+			},
+			Size: GetTerminalHeight(len(options)),
+		}
+
+		index, _, err := prompt.Run()
+		if err != nil {
+			if err == promptui.ErrInterrupt {
+				return
+			}
+
+			panic(err)
+		}
+
+		selectedFeed := channels[index]
+
+		ShowArticlesMenu(selectedFeed)
+	}
+}
+
+func showArticleMenuOptions(article *rssxmldecoder.FeedItem) {
+	options := []CliOption{
+		{Label: "Back", Value: "back"},
+		{Label: "Open in browser", Value: "open"},
+	}
+
 	prompt := promptui.Select{
-		Label: "Choose an article",
+		Label: "Choose an option",
 		Items: options,
 		Templates: &promptui.SelectTemplates{
 			Label:    "{{ . }}",
@@ -71,12 +108,12 @@ func ShowFeedsMenu(channels []*rssxmldecoder.Channel) {
 		Size: GetTerminalHeight(len(options)),
 	}
 
-	index, _, err := prompt.Run()
-	if err != nil {
-		panic(err)
+	index, _, _ := prompt.Run()
+
+	switch options[index].Value {
+	case "open":
+		Exec("open", article.Link)
+	default:
+		fmt.Println("default")
 	}
-
-	selectedFeed := channels[index]
-
-	ShowArticlesMenu(selectedFeed)
 }
