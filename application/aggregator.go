@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/augustofrade/go-rss-aggregator/cli"
 	"github.com/augustofrade/go-rss-aggregator/configdir"
 	rssxmldecoder "github.com/augustofrade/go-rss-aggregator/rss-xml-decoder"
 )
@@ -41,7 +42,8 @@ func (agg *Aggregator) fetchFeeds(urls []string) {
 	}
 
 	wg.Wait()
-	fmt.Printf("Found %d articles\n\n", len(agg.feeds))
+	fmt.Printf("Found %d feeds\n\n", len(agg.feeds))
+	cli.ShowFeedsMenu(agg.feeds)
 }
 
 func (agg *Aggregator) handleSingleFeed(url *string) (*rssxmldecoder.Channel, error) {

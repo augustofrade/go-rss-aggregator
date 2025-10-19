@@ -4,6 +4,8 @@ import (
 	"flag"
 	"os"
 	"os/exec"
+
+	"golang.org/x/term"
 )
 
 var (
@@ -32,4 +34,18 @@ func ClearTerminal() {
 	cmd := exec.Command("clear")
 	cmd.Stdout = os.Stdout
 	cmd.Run()
+}
+
+func GetTerminalHeight(lines int) int {
+	headerSize := 4
+	menuHeight := lines
+	if term.IsTerminal(0) {
+		_, height, err := term.GetSize(0)
+		if err != nil {
+			panic(err)
+		}
+		menuHeight = height - headerSize
+	}
+
+	return menuHeight
 }
