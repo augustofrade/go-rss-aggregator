@@ -4,6 +4,7 @@ import (
 	"flag"
 	"os"
 	"os/exec"
+	"strings"
 
 	"golang.org/x/term"
 )
@@ -40,6 +41,17 @@ func ClearTerminal() {
 	Exec("clear")
 }
 
+func GetTerminalWidth() int {
+	if term.IsTerminal(0) {
+		width, _, err := term.GetSize(0)
+		if err != nil {
+			panic(err)
+		}
+		return width
+	}
+	return 60
+}
+
 func GetTerminalHeight(lines int) int {
 	headerSize := 4
 	menuHeight := lines
@@ -52,4 +64,8 @@ func GetTerminalHeight(lines int) int {
 	}
 
 	return menuHeight
+}
+
+func Separator() string {
+	return strings.Repeat("-", GetTerminalWidth())
 }

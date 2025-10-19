@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	rssxmldecoder "github.com/augustofrade/go-rss-aggregator/rss-xml-decoder"
@@ -13,78 +14,62 @@ type CliOption struct {
 	Value string
 }
 
+var termWidth int = GetTerminalWidth()
+
 func ShowArticlesMenu(channel *rssxmldecoder.Channel) {
 	options := make([]CliOption, 0)
 
 	for i, item := range channel.Articles {
-		options = append(options, CliOption{Label: item.Title, Value: fmt.Sprint(i)})
-	}
-	prompt := promptui.Select{
-		Label: "Choose an article",
-		Items: options,
-		Templates: &promptui.SelectTemplates{
-			Label:    "{{ . }}",
-			Active:   "\U00002022 {{ .Label | blue }}",
-			Inactive: "  {{ .Label | white }}",
-			Selected: "{{ .Label | red | cyan }}",
-		},
-		Size: GetTerminalHeight(len(options)),
+		truncatedTitle := truncateText(item.Title, termWidth)
+		options = append(options, CliOption{Label: truncatedTitle, Value: fmt.Sprint(i)})
 	}
 
-	ClearTerminal()
-	fmt.Printf("Listing %d entries\n\n", len(options))
-	index, _, err := prompt.Run()
-	if err != nil {
-		panic(err)
+	for {
+		ClearTerminal()
+		fmt.Println(channel.Title)
+		fmt.Println(Separator())
+		fmt.Printf("\nListing %d entries\n\n", len(options))
+		fmt.Println()
+
+		promptLabel := "Choose an article"
+		selectedIndex := displayGenericSelect(promptLabel, options)
+		if selectedIndex == -1 {
+			return
+		}
+
+		ClearTerminal()
+
+		selectedArticle := (channel.Articles)[selectedIndex]
+		articleDescription := strings.TrimSpace(selectedArticle.Description)
+		articleDescription = strings.ReplaceAll(articleDescription, "[&#8230;]", "[...]")
+		articleDescription = strings.ReplaceAll(articleDescription, "&#160;", " ")
+
+		fmt.Printf("%s\n\n[%s]     %s\n\n", channel.Title, selectedArticle.PubDate, selectedArticle.Title)
+		fmt.Println(selectedArticle.Link)
+		fmt.Printf("\n\n%s\n\n", articleDescription)
+
+		showArticleMenuOptions(&selectedArticle)
 	}
-
-	ClearTerminal()
-
-	selectedArticle := (channel.Articles)[index]
-	articleDescription := strings.TrimSpace(selectedArticle.Description)
-	articleDescription = strings.ReplaceAll(articleDescription, "[&#8230;]", "[...]")
-	articleDescription = strings.ReplaceAll(articleDescription, "&#160;", " ")
-
-	fmt.Printf("%s\n\n[%s]     %s\n\n", channel.Title, selectedArticle.PubDate, selectedArticle.Title)
-	fmt.Println(selectedArticle.Link)
-	fmt.Printf("\n\n%s\n\n", articleDescription)
-
-	showArticleMenuOptions(&selectedArticle)
 }
 
 func ShowFeedsMenu(channels []*rssxmldecoder.Channel) {
 
 	options := make([]CliOption, 0)
 	for i, channel := range channels {
-		optionLabel := fmt.Sprintf("[%d]  %s", len(channel.Articles), channel.Title)
+		truncatedTitle := truncateText(channel.Title, termWidth)
+		optionLabel := fmt.Sprintf("[%d]  %s", len(channel.Articles), truncatedTitle)
 		options = append(options, CliOption{Label: optionLabel, Value: fmt.Sprint(i)})
 	}
 
+	promptLabel := "Choose an option"
 	for {
 		ClearTerminal()
-
-		prompt := promptui.Select{
-			Label: "Choose a feed",
-			Items: options,
-			Templates: &promptui.SelectTemplates{
-				Label:    "{{ . }}",
-				Active:   "\U00002022 {{ .Label | blue }}",
-				Inactive: "  {{ .Label | white }}",
-				Selected: "{{ .Label | cyan }}",
-			},
-			Size: GetTerminalHeight(len(options)),
+		fmt.Printf("%d Feeds\n\n", len(options))
+		selectedIndex := displayGenericSelect(promptLabel, options)
+		if selectedIndex == -1 {
+			return
 		}
-
-		index, _, err := prompt.Run()
-		if err != nil {
-			if err == promptui.ErrInterrupt {
-				return
-			}
-
-			panic(err)
-		}
-
-		selectedFeed := channels[index]
+		selectedFeed := channels[selectedIndex]
 
 		ShowArticlesMenu(selectedFeed)
 	}
@@ -96,8 +81,21 @@ func showArticleMenuOptions(article *rssxmldecoder.FeedItem) {
 		{Label: "Open in browser", Value: "open"},
 	}
 
+	index := displayGenericSelect("Choose an option", options)
+	if index == -1 {
+		os.Exit(0)
+		return
+	}
+
+	if options[index].Value == "open" {
+		Exec("open", article.Link)
+	}
+}
+
+func displayGenericSelect(promptLabel string, options []CliOption) int {
+
 	prompt := promptui.Select{
-		Label: "Choose an option",
+		Label: promptLabel,
 		Items: options,
 		Templates: &promptui.SelectTemplates{
 			Label:    "{{ . }}",
@@ -105,15 +103,24 @@ func showArticleMenuOptions(article *rssxmldecoder.FeedItem) {
 			Inactive: "  {{ .Label | white }}",
 			Selected: "{{ .Label | cyan }}",
 		},
-		Size: GetTerminalHeight(len(options)),
+		Size: 20,
 	}
 
-	index, _, _ := prompt.Run()
-
-	switch options[index].Value {
-	case "open":
-		Exec("open", article.Link)
-	default:
-		fmt.Println("default")
+	index, _, err := prompt.Run()
+	if err != nil {
+		if err == promptui.ErrInterrupt {
+			ClearTerminal()
+			return -1
+		}
+		panic(err)
 	}
+
+	return index
+}
+
+func truncateText(label string, max int) string {
+	if len(label) > max {
+		return label[:max-10] + "..."
+	}
+	return label
 }
