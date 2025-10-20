@@ -36,6 +36,7 @@ func (agg *Aggregator) fetchFeeds(urls []string) {
 			currentFeed, err := agg.handleSingleFeed(&url)
 			if err != nil {
 				log.Printf("Failed fetching \"%s\"\n%s\n", url, err)
+				return
 			}
 			agg.feeds = append(agg.feeds, currentFeed)
 		})
