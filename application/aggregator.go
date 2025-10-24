@@ -13,7 +13,7 @@ import (
 )
 
 type Aggregator struct {
-	feeds []*rssxmldecoder.Channel
+	feeds []*rssxmldecoder.Feed
 }
 
 func (agg *Aggregator) Handle() error {
@@ -47,14 +47,15 @@ func (agg *Aggregator) fetchFeeds(urls []string) {
 	cli.ShowFeedsMenu(agg.feeds)
 }
 
-func (agg *Aggregator) handleSingleFeed(url *string) (*rssxmldecoder.Channel, error) {
+func (agg *Aggregator) handleSingleFeed(url *string) (*rssxmldecoder.Feed, error) {
 	fmt.Println("Fetching ", *url)
 	currentFeed, err := fetchExternalFile(url)
 	if err != nil {
 		return nil, err
 	}
 
-	return rssxmldecoder.Decode(currentFeed)
+	// TODO: implement detector -> find if is rss or atom
+	return rssxmldecoder.Decode(currentFeed, "rss")
 }
 
 func (agg *Aggregator) getFeedsURLs() ([]string, error) {

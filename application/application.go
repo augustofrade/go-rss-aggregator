@@ -18,7 +18,8 @@ func HandleLocalFile(path *string) error {
 		return err
 	}
 
-	rssChannel, err := rssxmldecoder.Decode(bodyBytes)
+	// TODO: implement detector -> find if is rss or atom
+	rssChannel, err := rssxmldecoder.Decode(bodyBytes, "rss")
 	if err != nil {
 		return err
 	}
@@ -35,7 +36,8 @@ func HandleExternalUrl(url *string) error {
 		return err
 	}
 
-	rssChannel, err := rssxmldecoder.Decode(bodyBytes)
+	// TODO: implement detector -> find if is rss or atom
+	rssChannel, err := rssxmldecoder.Decode(bodyBytes, "rss")
 	if err != nil {
 		return err
 	}

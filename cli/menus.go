@@ -16,7 +16,7 @@ type CliOption struct {
 
 var termWidth int = GetTerminalWidth()
 
-func ShowArticlesMenu(channel *rssxmldecoder.Channel) {
+func ShowArticlesMenu(channel *rssxmldecoder.Feed) {
 	options := make([]CliOption, 0)
 
 	for i, item := range channel.Articles {
@@ -51,7 +51,7 @@ func ShowArticlesMenu(channel *rssxmldecoder.Channel) {
 	}
 }
 
-func ShowFeedsMenu(channels []*rssxmldecoder.Channel) {
+func ShowFeedsMenu(channels []*rssxmldecoder.Feed) {
 
 	options := make([]CliOption, 0)
 	for i, channel := range channels {
@@ -72,7 +72,7 @@ func ShowFeedsMenu(channels []*rssxmldecoder.Channel) {
 	}
 }
 
-func showArticleMenuOptions(article *rssxmldecoder.FeedItem) {
+func showArticleMenuOptions(article *rssxmldecoder.FeedArticle) {
 	options := []CliOption{
 		{Label: "Back", Value: "back"},
 		{Label: "Open in browser", Value: "open"},
