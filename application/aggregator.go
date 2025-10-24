@@ -54,8 +54,7 @@ func (agg *Aggregator) handleSingleFeed(url *string) (*rssxmldecoder.Feed, error
 		return nil, err
 	}
 
-	// TODO: implement detector -> find if is rss or atom
-	return rssxmldecoder.Decode(currentFeed, "rss")
+	return rssxmldecoder.Decode(currentFeed)
 }
 
 func (agg *Aggregator) getFeedsURLs() ([]string, error) {
