@@ -3,6 +3,7 @@ package rssxmldecoder
 import (
 	"bytes"
 	"encoding/xml"
+	"time"
 )
 
 type Rss struct {
@@ -99,7 +100,7 @@ func decodeAndMapRSS(data *[]byte) (*Feed, error) {
 		feed.Articles = append(feed.Articles, FeedArticle{
 			Title:       item.Title,
 			Link:        item.Link,
-			PubDate:     item.PubDate,
+			PubDate:     formatDate(item.PubDate, "Mon, 02 Jan 2006 15:04:05 -0700"),
 			Description: item.Description,
 		})
 	}
@@ -124,10 +125,19 @@ func decodeAndMapAtom(data *[]byte) (*Feed, error) {
 		feed.Articles = append(feed.Articles, FeedArticle{
 			Title:       item.Title,
 			Link:        item.Link.Href,
-			PubDate:     item.Published,
+			PubDate:     formatDate(item.Published, "2006-01-02T15:04:05-07:00"),
 			Description: item.Summary,
 		})
 	}
 
 	return &feed, nil
+}
+
+func formatDate(date string, currFormat string) string {
+	publishDate, err := time.Parse(currFormat, date)
+	if err != nil {
+		return date
+	}
+
+	return publishDate.Format("Mon, 02 Jan 2006 15:04:05 MST")
 }
